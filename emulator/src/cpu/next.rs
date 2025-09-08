@@ -2,25 +2,57 @@ use crate::cpu::CPU;
 use crate::cpu::opcodes as O;
 use crate::cpu::registers as R;
 
+macro_rules! add {
+    ($lhs:expr, $rhs:expr) => { $lhs.wrapping_add($rhs) };
+}
+
+macro_rules! sub {
+    ($lhs:expr, $rhs:expr) => { $lhs.wrapping_sub($rhs) };
+}
+
+macro_rules! mul {
+    ($lhs:expr, $rhs:expr) => { $lhs.wrapping_mul($rhs) };
+}
+
+macro_rules! div {
+    ($lhs:expr, $rhs:expr) => { $lhs.wrapping_div($rhs) };
+}
+
 macro_rules! post_inc {
-    ($exp:expr) => { { let result = $exp; $exp = $exp.wrapping_add(1); result } };
+    ($exp:expr) => { { let result = $exp; $exp = add!($exp, 1); result } };
 }
 
 macro_rules! pre_dec {
-    ($exp:expr) => { { $exp = $exp.wrapping_sub(1); $exp } };
+    ($exp:expr) => { { $exp = sub!($exp, 1); $exp } };
+}
+
+macro_rules! post_dec {
+    ($exp:expr) => { { let result = $exp; $exp = add!($exp, 1); result } };
 }
 
 macro_rules! push {
-    ($self:expr, $val:expr) => { $self.ram[$self.registers[R::RG].wrapping_add(post_inc!($self.registers[R::RS])) as usize] = $val; };
+    ($self:expr, $val:expr) => { { $self.ram[add!($self.registers[R::RG], post_inc!($self.registers[R::RS])) as usize] = $val; } };
 }
 
 macro_rules! pop {
-    ($self:expr) => { $self.ram[$self.registers[R::RG].wrapping_add(pre_dec!($self.registers[R::RS])) as usize] };
+    ($self:expr) => { $self.ram[add!($self.registers[R::RG], pre_dec!($self.registers[R::RS])) as usize] };
 }
 
 macro_rules! deref {
-    ($self:expr, $addr:expr) => { $self.ram[$self.registers[R::RG].wrapping_add($addr) as usize] };
+    ($self:expr, $addr:expr) => { $self.ram[add!($self.registers[R::RG], $addr) as usize] };
 }
+
+macro_rules! jump {
+    ($self:expr, $addr:expr) => { $self.registers[R::RI] = add!($addr, $self.registers[R::RR]) };
+}
+
+macro_rules! f16 {
+    ($it:expr) => { unsafe { std::mem::transmute::<_, f16>($it) } };
+}
+
+const ANSI_YELLOW: &'static str = "\x1b[93m";
+const ANSI_BLUE: &'static str = "\x1b[94m";
+const ANSI_RESET: &'static str = "\x1b[0m";
 
 unsafe fn make_mut<T>(ptr: &T) -> &mut T {
     #[allow(mutable_transmutes)]
@@ -87,11 +119,34 @@ impl CPU {
             O::OPCODE_SWAP => std::mem::swap(op1, op2),
             O::OPCODE_READITR => *op1 = deref!(self, post_inc!(*op2)),
             O::OPCODE_WRITEITR => deref!(self, post_inc!(*op1)) = *op2,
+            O::OPCODE_COPYITR => deref!(self, post_inc!(*op1)) = deref!(self, post_inc!(*op2)),
+            O::OPCODE_LOOKUP => *op1 = deref!(self, add!(*op1, *op2)),
+            O::OPCODE_JLOOKUP => jump!(self, deref!(self, add!(*op1, *op2))),
+            O::OPCODE_CLOOKUP => todo!(),
+            O::OPCODE_JRNZDEC => if post_dec!(*op1) != 0 { jump!(self, *op2); },
+            O::OPCODE_CALLW => todo!(),
+
+            O::OPCODE_JRZ => if *op1 == 0 { jump!(self, *op2); },
+            O::OPCODE_JRNZ => if *op1 != 0 { jump!(self, *op2); },
+            O::OPCODE_JRGT => if (*op1 as i16) > 0 { jump!(self, *op2); },
+            O::OPCODE_JRLT => if (*op1 as i16) < 0 { jump!(self, *op2); },
+
+            O::OPCODE_ADD => *op1 = add!(*op1, *op2),
+            O::OPCODE_SUB => *op1 = sub!(*op1, *op2),
+            O::OPCODE_MUL => *op1 = mul!(*op1, *op2),
+            O::OPCODE_DIV => *op1 = div!(*op1, *op2),
             _ => panic!("opcode {opcode} for two-op instruction not expected"),
         }
     }
 
-    fn exec_single_op(&mut self, opcode: u16, op: &mut u16) {}
+    fn exec_single_op(&mut self, opcode: u16, op: &mut u16) {
+        match opcode {
+            O::OPCODE_DBG => println!("{ANSI_YELLOW}dbg: {ANSI_BLUE}{:?}{ANSI_YELLOW} (u16) or {ANSI_BLUE}{:?}{ANSI_YELLOW} (f16)", *op, f16!(*op)),
+            O::OPCODE_PUSH => push!(self, *op),
+            O::OPCODE_POP => *op = pop!(self),
+            _ => panic!("opcode {opcode} for single-op instruction not expected"),
+        }
+    }
 
     fn exec_no_op(&mut self, opcode: u16) {
         match opcode {

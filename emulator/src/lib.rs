@@ -1,5 +1,6 @@
 #![allow(unused)]
 #![deny(unsafe_op_in_unsafe_fn)]
+#![feature(f16)]
 
 mod cpu;
 mod device;

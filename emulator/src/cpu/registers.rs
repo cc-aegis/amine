@@ -1,0 +1,15 @@
+pub const R0: usize = 0;
+pub const R1: usize = 1;
+pub const R2: usize = 2;
+pub const R3: usize = 3;
+pub const R4: usize = 4;
+pub const R5: usize = 5;
+pub const R6: usize = 6;
+pub const R7: usize = 7;
+pub const RR: usize = 8;
+pub const RI: usize = 9;
+pub const RB: usize = 10;
+pub const RS: usize = 11;
+pub const RG: usize = 12;
+pub const RD: usize = 13;
+pub const RF: usize = 14;

@@ -1,3 +1,9 @@
+#![allow(unused)]
+#![deny(unsafe_op_in_unsafe_fn)]
+
+mod cpu;
+mod device;
+
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }

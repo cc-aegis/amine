@@ -135,6 +135,28 @@ impl CPU {
             O::OPCODE_SUB => *op1 = sub!(*op1, *op2),
             O::OPCODE_MUL => *op1 = mul!(*op1, *op2),
             O::OPCODE_DIV => *op1 = div!(*op1, *op2),
+            O::OPCODE_UTOF => todo!(),
+            O::OPCODE_ITOF => todo!(),
+            O::OPCODE_IMUL => todo!(),
+            O::OPCODE_IDIV => todo!(),
+            O::OPCODE_FADD => todo!(),
+            O::OPCODE_FSUB => todo!(),
+            O::OPCODE_FMUL => todo!(),
+            O::OPCODE_FDIV => todo!(),
+            O::OPCODE_FTOU => todo!(),
+            O::OPCODE_FTOI => todo!(),
+
+            O::OPCODE_AND => *op1 &= *op2,
+            O::OPCODE_OR => *op1 |= *op2,
+            O::OPCODE_XOR => *op1 ^= *op2,
+
+            O::OPCODE_SHL => *op1 <<= *op2,
+            O::OPCODE_SHR => *op1 >>= *op2,
+
+           O:: OPCODE_CTX => if let Some(device) = self.io.get_mut(self.registers[R::RD] as usize) {
+                device.set_context(*op1, *op2);
+            }
+
             _ => panic!("opcode {opcode} for two-op instruction not expected"),
         }
     }
@@ -144,6 +166,17 @@ impl CPU {
             O::OPCODE_DBG => println!("{ANSI_YELLOW}dbg: {ANSI_BLUE}{:?}{ANSI_YELLOW} (u16) or {ANSI_BLUE}{:?}{ANSI_YELLOW} (f16)", *op, f16!(*op)),
             O::OPCODE_PUSH => push!(self, *op),
             O::OPCODE_POP => *op = pop!(self),
+
+            O::OPCODE_INC => *op = add!(*op, 1),
+            O::OPCODE_DEC => *op = sub!(*op, 1),
+            O::OPCODE_SSHR => *op >>= 1,
+
+            O::OPCODE_FLOOR => todo!(),
+            O::OPCODE_CEIL => todo!(),
+
+            O::OPCODE_JMP => jump!(self, *op),
+            O::OPCODE_CALL => todo!(),
+
             _ => panic!("opcode {opcode} for single-op instruction not expected"),
         }
     }
@@ -153,7 +186,9 @@ impl CPU {
             O::OPCODE_NOP => {},
             O::OPCODE_RET => todo!(),
             O::OPCODE_SEND => todo!(),
+
             O::OPCODE_EXIT => todo!(),
+
             _ => panic!("opcode {opcode} for no-op instruction not expected"),
         }
     }

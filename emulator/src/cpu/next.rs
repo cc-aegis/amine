@@ -88,15 +88,15 @@ impl CPU {
         }
     }
 
-    fn next(&mut self) {
+    pub fn next(&mut self) {
         let inst = self.read_word();
         if inst & 0xFC00 != 0 {
             let op1 = unsafe { make_mut(self).ptr((inst >> 5) & 0x001F) };
             let op2 = unsafe { make_mut(self).ptr(inst & 0x001F) };
             unsafe { make_mut(self) }.exec_two_op(inst & 0xFC00, op1, op2);
-        } else if inst & 0x03D0 != 0 {
+        } else if inst & 0x03E0 != 0 {
             let op = unsafe { make_mut(self).ptr(inst & 0x001F) };
-            unsafe { make_mut(self) }.exec_single_op(inst & 0x03D0, op);
+            unsafe { make_mut(self) }.exec_single_op(inst & 0x03E0, op);
         } else {
             self.exec_no_op(inst & 0x001F);
         }
@@ -163,7 +163,7 @@ impl CPU {
 
     fn exec_single_op(&mut self, opcode: u16, op: &mut u16) {
         match opcode {
-            O::OPCODE_DBG => println!("{ANSI_YELLOW}dbg: {ANSI_BLUE}{:?}{ANSI_YELLOW} (u16) or {ANSI_BLUE}{:?}{ANSI_YELLOW} (f16)", *op, f16!(*op)),
+            O::OPCODE_DBG => println!("{ANSI_YELLOW}dbg: {ANSI_BLUE}{:?}{ANSI_YELLOW} (u16) or {ANSI_BLUE}{:?}{ANSI_YELLOW} (f16){ANSI_RESET}", *op, f16!(*op)),
             O::OPCODE_PUSH => push!(self, *op),
             O::OPCODE_POP => *op = pop!(self),
 

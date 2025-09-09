@@ -3,11 +3,12 @@ use crate::AssemblerError;
 use crate::opcode::{NoOpOpcode, SingleOpOpcode, TwoOpOpcode};
 use crate::operand::Operand;
 
+#[derive(Debug)]
 pub enum Instruction {
     Label(String),
     Sublabel(String),
     Include(String),
-    Define(String, String),
+    Define(String, Operand),
     RawWords(Vec<Operand>),
     TwoOp(TwoOpOpcode, Operand, Operand),
     SingleOp(SingleOpOpcode, Operand),
@@ -15,6 +16,7 @@ pub enum Instruction {
     Blank,
 }
 
+#[derive(Debug)]
 pub struct InvalidInstruction(String);
 
 impl FromStr for Instruction {
@@ -24,8 +26,8 @@ impl FromStr for Instruction {
         let s = s.split(';').next().unwrap().trim();
         //todo: match this (pattern if cond => val)
         if let Some(label) = s.strip_suffix(':') {
-            return if let Some(label) = s.strip_prefix('.') {
-                Ok(Instruction::Sublabel(label[1..].to_string()))
+            return if let Some(label) = label.strip_prefix('.') {
+                Ok(Instruction::Sublabel(label.to_string()))
             } else {
                 Ok(Instruction::Label(label.to_string()))
             }
@@ -33,7 +35,7 @@ impl FromStr for Instruction {
         let parts = s.split_whitespace().collect::<Vec<_>>();
         match parts.as_slice() {
             ["include", file] => Ok(Instruction::Include(file.to_string())),
-            ["define", lhs, rhs] => Ok(Instruction::Define(lhs.to_string(), rhs.to_string())),
+            ["define", lhs, rhs] => Ok(Instruction::Define(lhs.to_string(), rhs.parse().map_err(AssemblerError::InvalidOperand)?)),
             ["dw", ..] => Ok(Instruction::RawWords(parts
                 .into_iter()
                 .skip(1)

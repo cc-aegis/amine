@@ -1,10 +1,12 @@
 use std::str::FromStr;
 
+#[derive(Debug)]
 pub enum Operand {
     Direct(OpValue),
     Indirect(OpValue),
 }
 
+#[derive(Debug)]
 pub struct InvalidOperand(String);
 
 impl FromStr for Operand {
@@ -19,7 +21,15 @@ impl FromStr for Operand {
     }
 }
 
+#[derive(Debug)]
+pub enum Register {
+    R0, R1, R2, R3, R4, R5, R6, R7,
+    RR, RI, RB, RS, RG, RD, RF,
+}
+
+#[derive(Debug)]
 pub enum OpValue {
+    Register(Register),
     U16(u16),
     Constant(String),
 }
@@ -32,7 +42,24 @@ impl FromStr for OpValue {
             Ok(OpValue::U16(parse_val(s)
                 .ok_or_else(|| InvalidOperand(s.into()))?))
         } else {
-            Ok(OpValue::Constant(s.into()))
+            match s {
+                "r0" => Ok(OpValue::Register(Register::R0)),
+                "r1" => Ok(OpValue::Register(Register::R1)),
+                "r2" => Ok(OpValue::Register(Register::R2)),
+                "r3" => Ok(OpValue::Register(Register::R3)),
+                "r4" => Ok(OpValue::Register(Register::R4)),
+                "r5" => Ok(OpValue::Register(Register::R5)),
+                "r6" => Ok(OpValue::Register(Register::R6)),
+                "r7" => Ok(OpValue::Register(Register::R7)),
+                "rr" => Ok(OpValue::Register(Register::RR)),
+                "ri" => Ok(OpValue::Register(Register::RI)),
+                "rb" => Ok(OpValue::Register(Register::RB)),
+                "rs" => Ok(OpValue::Register(Register::RS)),
+                "rg" => Ok(OpValue::Register(Register::RG)),
+                "rd" => Ok(OpValue::Register(Register::RD)),
+                "rf" => Ok(OpValue::Register(Register::RF)),
+                _ => Ok(OpValue::Constant(s.into())),
+            }
         }
     }
 }

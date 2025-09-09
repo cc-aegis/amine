@@ -7,6 +7,7 @@ mod instruction;
 mod opcode;
 mod operand;
 
+#[derive(Debug)]
 pub enum AssemblerError {
     FileNotFound(String),
     InvalidInstruction(instruction::InvalidInstruction),

@@ -72,8 +72,8 @@ impl CPU {
             let address = match operand & 0x000F {
                 0..15 => &mut cpu.registers[(operand & 0x000F) as usize],
                 15 => {
-                    let idx = cpu.registers[9];
-                    cpu.registers[9] = idx + 1;
+                    let idx = cpu.registers[R::RI];
+                    cpu.registers[R::RI] = idx + 1;
                     &mut cpu.ram[idx.wrapping_add(cpu.registers[R::RR]) as usize]
                 },
                 _ => unreachable!(),
@@ -153,7 +153,7 @@ impl CPU {
             O::OPCODE_SHL => *op1 <<= *op2,
             O::OPCODE_SHR => *op1 >>= *op2,
 
-           O:: OPCODE_CTX => if let Some(device) = self.io.get_mut(self.registers[R::RD] as usize) {
+            O::OPCODE_CTX => if let Some(device) = self.io.get_mut(self.registers[R::RD] as usize) {
                 device.set_context(*op1, *op2);
             }
 

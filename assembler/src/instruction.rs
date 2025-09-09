@@ -118,7 +118,7 @@ impl FromStr for Instruction {
                 _ => Err(AssemblerError::InvalidInstruction(InvalidInstruction(s.to_string())))?,
             })),
             [] => Ok(Instruction::Blank),
-            _ => todo!(),
+            _ => Err(AssemblerError::InvalidInstruction(InvalidInstruction(s.to_string())))?,
         }
     }
 }

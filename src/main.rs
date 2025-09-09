@@ -8,7 +8,7 @@ fn main() {
     let mut cpu = CPU::from(ram);
     cpu.next();
 
-    let code = assembler::link(&Path::new("./code/"));
+    let code = assembler::link(&Path::new("./examples/mem/"));
     dbg!(code);
 
 

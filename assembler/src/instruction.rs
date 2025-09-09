@@ -47,6 +47,7 @@ impl FromStr for Instruction {
                 "mov" => TwoOpOpcode::Mov,
                 "pusht" => TwoOpOpcode::PushT,
                 "popt" => TwoOpOpcode::PopT,
+                "read" => TwoOpOpcode::Read,
                 "write" => TwoOpOpcode::Write,
                 "copy" => TwoOpOpcode::Copy,
                 "swap" => TwoOpOpcode::Swap,

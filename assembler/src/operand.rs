@@ -38,18 +38,10 @@ impl FromStr for OpValue {
 }
 
 fn parse_val(s: &str) -> Option<u16> {
-    // TODO: s.parse::<bool>, then chain calls on Err, or return None at end
-    if s == "true" {
-        Some(1)
-    } else if s == "false" {
-        Some(0)
-    } else if let Ok(u) = s.parse::<u16>() {
-        Some(u)
-    } else if let Ok(i) = s.parse::<i16>() {
-        Some(i as u16)
-    } else if let Ok(f) = s.parse::<f16>() {
-        Some(f.to_bits())
-    } else {
-        None
-    }
+    s.parse::<u16>()
+        .or_else(|_| s.parse::<i16>().map(|i| i as u16))
+        .or_else(|_| s.parse::<f16>().map(f16::to_bits))
+        .or_else(|_| s.parse::<bool>().map(|b| b as u16))
+        .ok()
+        .or_else(|| (s == "nullptr").then(|| 0))
 }

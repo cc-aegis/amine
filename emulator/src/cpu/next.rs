@@ -47,7 +47,11 @@ macro_rules! jump {
 }
 
 macro_rules! f16 {
-    ($it:expr) => { unsafe { std::mem::transmute::<_, f16>($it) } };
+    ($it:expr) => { f16::from_bits($it) };
+}
+
+macro_rules! u16 {
+    ($it:expr) => { $it.to_bits() };
 }
 
 const ANSI_YELLOW: &'static str = "\x1b[93m";
@@ -135,16 +139,16 @@ impl CPU {
             O::OPCODE_SUB => *op1 = sub!(*op1, *op2),
             O::OPCODE_MUL => *op1 = mul!(*op1, *op2),
             O::OPCODE_DIV => *op1 = div!(*op1, *op2),
-            O::OPCODE_UTOF => todo!(),
-            O::OPCODE_ITOF => todo!(),
-            O::OPCODE_IMUL => todo!(),
-            O::OPCODE_IDIV => todo!(),
-            O::OPCODE_FADD => todo!(),
-            O::OPCODE_FSUB => todo!(),
-            O::OPCODE_FMUL => todo!(),
-            O::OPCODE_FDIV => todo!(),
-            O::OPCODE_FTOU => todo!(),
-            O::OPCODE_FTOI => todo!(),
+            O::OPCODE_UTOF => *op1 = u16!(*op2 as f16),
+            O::OPCODE_ITOF => *op1 = u16!(*op2 as i16 as f16),
+            O::OPCODE_IMUL => *op1 = mul!(*op1 as i16, *op2 as i16),
+            O::OPCODE_IDIV => *op1 = div!(*op1 as i16, *op2 as i16),
+            O::OPCODE_FADD => *op1 = u16!(f16!(*op1) + f16!(*op2)),
+            O::OPCODE_FSUB => *op1 = u16!(f16!(*op1) - f16!(*op2)),
+            O::OPCODE_FMUL => *op1 = u16!(f16!(*op1) / f16!(*op2)),
+            O::OPCODE_FDIV => *op1 = u16!(f16!(*op1) * f16!(*op2)),
+            O::OPCODE_FTOU => *op1 = f16!(*op2) as u16,
+            O::OPCODE_FTOI => *op1 = f16!(*op2) as i16 as u16,
 
             O::OPCODE_AND => *op1 &= *op2,
             O::OPCODE_OR => *op1 |= *op2,
@@ -175,7 +179,12 @@ impl CPU {
             O::OPCODE_CEIL => todo!(),
 
             O::OPCODE_JMP => jump!(self, *op),
-            O::OPCODE_CALL => todo!(),
+            O::OPCODE_CALL => {
+                push!(self, self.registers[R::RB]);
+                push!(self, self.registers[R::RI]);
+                self.registers[R::RB] = self.registers[R::RS];
+                jump!(self, *op);
+            },
 
             _ => panic!("opcode {opcode} for single-op instruction not expected"),
         }
@@ -184,7 +193,11 @@ impl CPU {
     fn exec_no_op(&mut self, opcode: u16) {
         match opcode {
             O::OPCODE_NOP => {},
-            O::OPCODE_RET => todo!(),
+            O::OPCODE_RET => {
+                self.registers[R::RS] = self.registers[R::RB];
+                self.registers[R::RI] = pop!(self);
+                self.registers[R::RB] = pop!(self);
+            },
             O::OPCODE_SEND => todo!(),
 
             O::OPCODE_EXIT => todo!(),

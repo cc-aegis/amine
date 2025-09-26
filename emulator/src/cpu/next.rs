@@ -54,10 +54,6 @@ macro_rules! u16 {
     ($it:expr) => { $it.to_bits() };
 }
 
-const ANSI_YELLOW: &'static str = "\x1b[93m";
-const ANSI_BLUE: &'static str = "\x1b[94m";
-const ANSI_RESET: &'static str = "\x1b[0m";
-
 unsafe fn make_mut<T>(ptr: &T) -> &mut T {
     #[allow(mutable_transmutes)]
     unsafe { std::mem::transmute(ptr) }
@@ -92,7 +88,8 @@ impl CPU {
         }
     }
 
-    pub fn next(&mut self) {
+    #[inline(always)]
+    fn next(&mut self) {
         let inst = self.read_word();
         if inst & 0xFC00 != 0 {
             let op1 = unsafe { make_mut(self).ptr((inst >> 5) & 0x001F) };
@@ -103,6 +100,18 @@ impl CPU {
             unsafe { make_mut(self) }.exec_single_op(inst & 0x03E0, op);
         } else {
             self.exec_no_op(inst & 0x001F);
+        }
+    }
+
+    pub fn update(&mut self, iterations: usize) {
+        for _ in 0..iterations {
+            self.next();
+        }
+
+        self.cycle += iterations;
+
+        for plugin in unsafe { make_mut(&self.plugins) } {
+            plugin.run(unsafe { make_mut(self) })
         }
     }
 
@@ -167,7 +176,7 @@ impl CPU {
 
     fn exec_single_op(&mut self, opcode: u16, op: &mut u16) {
         match opcode {
-            O::OPCODE_DBG => println!("{ANSI_YELLOW}dbg: {ANSI_BLUE}{:?}{ANSI_YELLOW} (u16) or {ANSI_BLUE}{:?}{ANSI_YELLOW} (f16){ANSI_RESET}", *op, f16!(*op)),
+            O::OPCODE_DBG => self.dbg_queue.push_front(*op),
             O::OPCODE_PUSH => push!(self, *op),
             O::OPCODE_POP => *op = pop!(self),
 

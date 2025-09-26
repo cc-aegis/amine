@@ -3,13 +3,11 @@
 use std::collections::HashSet;
 use std::path::Path;
 use crate::instruction::Instruction;
-use crate::preparse::{preparse};
 
 mod instruction;
 mod opcode;
 mod operand;
 mod preparse;
-mod link;
 mod assemble;
 
 // TODO: move all error variants into here
@@ -56,12 +54,12 @@ fn link_rec(root_dir: &Path, file: String, blacklist: &mut HashSet<String>) -> R
     Ok(result)
 }
 
-pub fn link(root_dir: &Path) -> Result<Vec<Instruction>, AssemblerError> {
+fn link(root_dir: &Path) -> Result<Vec<Instruction>, AssemblerError> {
     // parse_file(root_dir, "main.s")
     link_rec(root_dir, String::from("main.s"), &mut HashSet::new())
 }
 
-pub fn assemble(code: &[Instruction]) -> Result<Box<[u16; 65536]>, AssemblerError> {
+fn assemble(code: &[Instruction]) -> Result<Box<[u16; 65536]>, AssemblerError> {
     let code = assemble::assemble(code)?;
     let mut result = Box::new([0; 65536]);
 
@@ -72,4 +70,24 @@ pub fn assemble(code: &[Instruction]) -> Result<Box<[u16; 65536]>, AssemblerErro
             Ok(result)
         }
     }
+}
+
+pub fn assemble_file(dir: &Path) -> Result<Box<[u16; 65536]>, AssemblerError> {
+    let parent = dir
+        .parent()
+        .ok_or_else(|| AssemblerError::FileNotFound(dir.display().to_string()))?;
+    let file = dir
+        .file_name()
+        .ok_or_else(|| AssemblerError::FileNotFound(dir.display().to_string()))?
+        .to_str()
+        .ok_or_else(|| AssemblerError::FileNotFound(dir.display().to_string()))?;
+    parse_file(parent, file)
+        .map(|files| assemble(&files))
+        .flatten()
+}
+
+pub fn assemble_project(root_dir: &Path) -> Result<Box<[u16; 65536]>, AssemblerError> {
+    link(root_dir)
+        .map(|files| assemble(&files))
+        .flatten()
 }

@@ -1,20 +1,16 @@
 use std::path::Path;
 use emulator::cpu::CPU;
 
-fn main() {
-    let mut ram = Box::new([0; 65536]);
-    ram[0] = 0x002F;
-    ram[1] = 0x1234;
-    let mut cpu = CPU::from(ram);
+// TODO: amine build file.s
+// TODO: amine build -p path
+// TODO: amine run file.x
 
+fn main() {
     // struct CPUPlugin { freq: usize, act: fn(&mut CPU) }
     // Thread { cpu: CPU, plugins: Vec<CPUPlugin> }
     // run loop of .next(); every 1024 steps call all plugins (plugins like interrupt, reading dbg, limitops (2 mops))
-    cpu.next();
 
-    let code = assembler::link(&Path::new("./examples/fib/"));
-    dbg!(&code);
-    let bytecode = assembler::assemble(&code.unwrap()).unwrap();
+    let bytecode = assembler::assemble_file(&Path::new("./examples/fib/main.s")).unwrap();
     let mut cpu = CPU::from(bytecode);
 
     loop {

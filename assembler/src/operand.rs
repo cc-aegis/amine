@@ -9,7 +9,6 @@ pub struct InvalidOperand(String);
 #[derive(Debug)]
 pub struct InvalidLabel(String);
 
-
 #[derive(Debug)]
 pub enum RegOp {
     Direct(RawRegOp),

@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum TwoOpOpcode {
     Mov = 0x0400,
     PushT = 0x0800,
@@ -47,7 +47,7 @@ pub enum TwoOpOpcode {
     Ctx = 0xFC00,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum SingleOpOpcode {
     Dbg = 0x0020,
     Push = 0x0040,
@@ -71,7 +71,7 @@ pub enum SingleOpOpcode {
     RetL = 0x03A0,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum NoOpOpcode {
     Nop = 0x0000,
     Ret = 0x0001,

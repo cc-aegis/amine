@@ -1,17 +1,17 @@
 use std::str::FromStr;
 use crate::AssemblerError;
 use crate::opcode::{NoOpOpcode, SingleOpOpcode, TwoOpOpcode};
-use crate::operand::Operand;
+use crate::operand::{ConstOp, RegOp};
 
 #[derive(Debug)]
 pub enum Instruction {
     Label(String),
     Sublabel(String),
     Include(String),
-    Define(String, Operand),
-    RawWords(Vec<Operand>),
-    TwoOp(TwoOpOpcode, Operand, Operand),
-    SingleOp(SingleOpOpcode, Operand),
+    Define(String, ConstOp),
+    RawWords(Vec<ConstOp>),
+    TwoOp(TwoOpOpcode, RegOp, RegOp),
+    SingleOp(SingleOpOpcode, RegOp),
     NoOp(NoOpOpcode),
     Blank,
 }
@@ -35,13 +35,12 @@ impl FromStr for Instruction {
         let parts = s.split_whitespace().collect::<Vec<_>>();
         match parts.as_slice() {
             ["include", file] => Ok(Instruction::Include(file.to_string())),
-            ["define", lhs, rhs] => Ok(Instruction::Define(lhs.to_string(), rhs.parse().map_err(AssemblerError::InvalidOperand)?)),
+            ["define", lhs, rhs] => Ok(Instruction::Define(lhs.to_string(), rhs.parse()?)),
             ["dw", ..] => Ok(Instruction::RawWords(parts
                 .into_iter()
                 .skip(1)
                 .map(str::parse)
-                .collect::<Result<_, _>>()
-                .map_err(AssemblerError::InvalidOperand)?
+                .collect::<Result<_, _>>()?
             )),
             [opcode, lhs, rhs] => Ok(Instruction::TwoOp(match *opcode {
                 "mov" => TwoOpOpcode::Mov,
@@ -125,14 +124,3 @@ impl FromStr for Instruction {
         }
     }
 }
-
-impl Instruction {
-    fn compile_into(&self, /*something to compile operands (HashMap<(String, String) (?), u16>),*/ target: &mut Vec<u16>) {
-        match self {
-            _ => todo!()
-        }
-    }
-}
-
-
-

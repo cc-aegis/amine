@@ -4,6 +4,8 @@ mem::alloc(u16)->any*:
     write mem::HEAP r0
     ret
 
+    include add.s
+
 mem::free(any*):
     ret
 

@@ -12,10 +12,14 @@ fn main() {
     // run loop of .next(); every 1024 steps call all plugins (plugins like interrupt, reading dbg, limitops (2 mops))
     cpu.next();
 
-    let code = assembler::link(&Path::new("./examples/mem/"));
+    let code = assembler::link(&Path::new("./examples/fib/"));
     dbg!(&code);
-    assembler::assemble(&code.unwrap());
+    let bytecode = assembler::assemble(&code.unwrap()).unwrap();
+    let mut cpu = CPU::from(bytecode);
 
+    loop {
+        cpu.next();
+    }
 
 
     todo!("collect args")

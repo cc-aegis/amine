@@ -1,0 +1,48 @@
+fn main() {
+    top = Thread::spawn(FagOS);
+    loop {
+        top.run()
+    }
+}
+
+
+fn FagOS() {
+}
+
+struct Thread {
+    ram: &any,
+    stack: &any,
+    terminal: &Terminal,
+    //children: &Vec,
+}
+
+struct Terminal {
+    chars: &char,
+    len: u16,
+    offset: u16,
+}
+
+fn Thread::run() {
+}
+
+fn Thread::spawn(app: fn(&Thread)) -> &Thread {
+
+}
+
+
+
+
+
+fn fib(self: &Thread) {
+    let x = 0;
+    let y = 1;
+    let terminal = Thread::set_terminal_mode(self, true);
+    loop {
+        let z = x + y;
+        x = y;
+        y = z;
+        terminal::write_u16(x);
+        terminal::write_char('\n');
+        Thread::next();
+    }
+}

@@ -27,7 +27,7 @@ macro_rules! pre_dec {
 }
 
 macro_rules! post_dec {
-    ($exp:expr) => { { let result = $exp; $exp = add!($exp, 1); result } };
+    ($exp:expr) => { { let result = $exp; $exp = sub!($exp, 1); result } };
 }
 
 macro_rules! push {
@@ -154,8 +154,8 @@ impl CPU {
             O::OPCODE_IDIV => *op1 = div!(*op1 as i16, *op2 as i16) as u16,
             O::OPCODE_FADD => *op1 = u16!(f16!(*op1) + f16!(*op2)),
             O::OPCODE_FSUB => *op1 = u16!(f16!(*op1) - f16!(*op2)),
-            O::OPCODE_FMUL => *op1 = u16!(f16!(*op1) / f16!(*op2)),
-            O::OPCODE_FDIV => *op1 = u16!(f16!(*op1) * f16!(*op2)),
+            O::OPCODE_FMUL => *op1 = u16!(f16!(*op1) * f16!(*op2)),
+            O::OPCODE_FDIV => *op1 = u16!(f16!(*op1) / f16!(*op2)),
             O::OPCODE_FTOU => *op1 = f16!(*op2) as u16,
             O::OPCODE_FTOI => *op1 = f16!(*op2) as i16 as u16,
 
@@ -184,7 +184,7 @@ impl CPU {
             O::OPCODE_DEC => *op = sub!(*op, 1),
             O::OPCODE_SSHR => *op >>= 1,
 
-            O::OPCODE_FLOOR => todo!(),
+            O::OPCODE_FLOOR => *op = u16!(f16!(*op).floor()),
             O::OPCODE_CEIL => todo!(),
 
             O::OPCODE_JMP => jump!(self, *op),
@@ -207,7 +207,9 @@ impl CPU {
                 self.registers[R::RI] = pop!(self);
                 self.registers[R::RB] = pop!(self);
             },
-            O::OPCODE_SEND => todo!(),
+            O::OPCODE_SEND =>  if let Some(device) = self.io.get_mut(self.registers[R::RD] as usize) {
+                device.send();
+            },
 
             O::OPCODE_EXIT => todo!(),
 

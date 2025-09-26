@@ -27,7 +27,7 @@ impl CPU {
         }
     }
 
-    pub fn attach(&mut self, device: impl Into<Box<dyn Device>>) {
+    pub fn attach(&mut self, device: Box<dyn Device>) {
         self.io.push(device.into());
     }
 

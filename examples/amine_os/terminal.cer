@@ -1,0 +1,73 @@
+include text.cer;
+
+struct Terminal {
+    len: u16,
+    off: u16,
+    buf: &[char; 512], // maybe Vec instead
+    input: &TerminalInput,
+}
+
+struct TerminalInput {
+    len: u16,
+    buf: [char; 32],
+}
+
+fn Terminal::new() -> &Terminal {
+    let terminal = mem::alloc(4) alias &Terminal;
+    terminal[0] = 0;
+    terminal[1] = 0;
+    terminal[2] = mem::alloc(512) alias &char;
+    terminal[3] = nullptr;
+    terminal
+}
+
+fn Terminal::free(terminal: &Terminal) {
+    mem::free(terminal.buf);
+    if terminal.input != nullptr {
+        mem::free(terminal.input);
+    }
+    mem::free(terminal);
+}
+
+fn Terminal::push(terminal: &Terminal, s: &char) -> &Terminal {
+    for c in s {
+        if terminal.len == 512 {
+            self.buf[self.off] = c;
+            self.off = (self.off + 1) & 511;
+        } else {
+            self.buf[self.len] = c;
+            self.len = self.len + 1;
+        }
+    }
+}
+
+fn Terminal::readln(terminal: &Terminal) -> &TerminalInput {
+    let input = mem::filled(mem::alloc(33), 0) alias &TerminalInput;
+    terminal.input = input;
+    loop {
+        ...
+    }
+    terminal.input = nullptr;
+    input
+}
+
+#[
++----------------+
+|ADAM.X     14312| (colored)
+|...             |
+|                |
+|                |
+|                |
+|                |
+|                |
+|                |
+|                |
+|                |
+|                |
+|>SPAWN IDK.X_   | (colored)
++----------------+
+
+]
+fn Terminal::render(terminal: &Terminal) {
+
+}

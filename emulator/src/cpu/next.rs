@@ -111,7 +111,7 @@ impl CPU {
         self.cycle += iterations;
 
         for plugin in unsafe { make_mut(&self.plugins) } {
-            plugin.run(unsafe { make_mut(self) })
+            plugin.update(unsafe { make_mut(self) })
         }
     }
 

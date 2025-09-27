@@ -11,7 +11,6 @@ pub struct Display {
     x: u16,
     y: u16,
     color: u32,
-    frame: usize,
 }
 
 impl Display {
@@ -33,7 +32,6 @@ impl Display {
             x: 0,
             y: 0,
             color: 0,
-            frame: 0,
         }
     }
 }
@@ -69,8 +67,6 @@ impl Device for Display {
                 self.window
                     .update_with_buffer(self.buffer.as_slice(), WIDTH, HEIGHT)
                     .unwrap();
-                println!("frame {0}", self.frame);
-                self.frame += 1;
             },
             _ => {},
         }

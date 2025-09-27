@@ -17,7 +17,7 @@ impl LimitClockSpeed {
 }
 
 impl Plugin for LimitClockSpeed {
-    fn run(&mut self, cpu: &mut CPU) {
+    fn update(&mut self, cpu: &mut CPU) {
         let passed_time = Instant::now() - self.start;
         let cycle_ceil = passed_time.as_micros() as usize * self.ips / 1000000;
         let cycle_diff = cpu.cycle as isize - cycle_ceil as isize;

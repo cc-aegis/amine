@@ -2,10 +2,10 @@ use std::hash::{DefaultHasher, Hasher};
 use std::path::Path;
 use emulator::cpu::CPU;
 use emulator::device::Display;
-use emulator::plugin::{LimitClockSpeed, PrintDbg, RegisterInsight};
+use emulator::plugin::{ClearDbg, LimitClockSpeed, PrintDbg, RegisterInsight};
 // TODO: amine build file.s
 // TODO: amine build -p path
-// TODO: amine run file.x -D devices.. -P plugins..
+// TODO: amine run file.x -D "devices.." -P "plugins.."
 
 fn checksum(data: &[u16]) -> u64 {
     let mut hasher = DefaultHasher::new();
@@ -20,7 +20,7 @@ fn main() {
     // Thread { cpu: CPU, plugins: Vec<CPUPlugin> }
     // run loop of .next(); every 1024 steps call all plugins (plugins like interrupt, reading dbg, limitops (2 mops))
 
-    let bytecode = assembler::assemble_project(&Path::new("./examples/scanline_video_player_128x96")).unwrap();
+    let bytecode = assembler::assemble_project(&Path::new("./examples/amine_os")).unwrap();
     let len = bytecode
         .iter()
         .enumerate()
@@ -34,10 +34,11 @@ fn main() {
     let mut cpu = CPU::from(bytecode);
 
     cpu.attach(Box::new(Display::new()));
+    cpu.attach(Box::new(Display::new()));
 
     cpu.install(Box::new(PrintDbg));
-    // cpu.install(Box::new(RegisterInsight::new()));
-    cpu.install(Box::new(LimitClockSpeed::new(1_000_000))); // 20_000_000
+    // cpu.install(Box::new(RegisterInsight::new(true, true, false)));
+    cpu.install(Box::new(LimitClockSpeed::new(20_000_000))); // 20_000_000
 
     loop {
         cpu.update(65536);

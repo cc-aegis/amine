@@ -1,6 +1,6 @@
 start:
     mov rs #8000
-    push Fibonacci
+    push BadApple::main()
     call thread::spawn(App*)->Thread*
     dec rs
     add r0 #15
@@ -14,6 +14,8 @@ dependencies:
     include mem.s
     include apps/mode7.s
     include apps/vec_test.s
+    include apps/fill_red.s
+    include apps/bad_apple/main.s
 
 
 

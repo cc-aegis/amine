@@ -10,7 +10,7 @@ const ANSI_RESET: &'static str = "\x1b[0m";
 pub struct PrintDbg;
 
 impl Plugin for PrintDbg {
-    fn run(&mut self, cpu: &mut CPU) {
+    fn update(&mut self, cpu: &mut CPU) {
         while let Some(out) = cpu.dbg_queue.pop_back() {
             println!(
                 "{ANSI_YELLOW}dbg: {ANSI_BLUE}{:?}{ANSI_YELLOW} (u16) or {ANSI_BLUE}{:?}{ANSI_YELLOW} (f16){ANSI_RESET}",

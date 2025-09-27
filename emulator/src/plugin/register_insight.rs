@@ -13,12 +13,18 @@ pub const RI: usize = 9;
 pub const RS: usize = 11;
 
 pub struct RegisterInsight {
+    show_next_instruction: bool,
+    show_stack_window: bool,
     show_ram_checksum: bool,
 }
 
 impl RegisterInsight {
-    pub fn new() -> Self {
-        RegisterInsight { show_ram_checksum: true }
+    pub fn new(show_next_instruction: bool, show_stack_window: bool, show_ram_checksum: bool) -> Self {
+        RegisterInsight {
+            show_next_instruction,
+            show_stack_window,
+            show_ram_checksum,
+        }
     }
 }
 
@@ -26,7 +32,7 @@ fn format_inst(cpu: &CPU) -> String {
     let inst = cpu.ram[cpu.registers[RI] as usize];
 
     format!(
-        "{ANSI_GREEN}({0:0>6b}-{1:0>5b}-{2:0>5b}){ANSI_RESET}",
+        " {ANSI_GREEN}({0:0>6b}-{1:0>5b}-{2:0>5b}){ANSI_RESET}",
         (inst >> 10),
         (inst >> 5) & 0x1F,
         inst & 0x1F,
@@ -36,7 +42,7 @@ fn format_inst(cpu: &CPU) -> String {
 fn format_stack(cpu: &CPU) -> String {
     let idx = cpu.registers[RS];
     format!(
-        "{ANSI_PURPLE}[{0} {1} >{2}< {3} {4}]{ANSI_RESET}",
+        " {ANSI_PURPLE}[{0} {1} >{2}< {3} {4}]{ANSI_RESET}",
         cpu.ram[idx.wrapping_sub(2) as usize],
         cpu.ram[idx.wrapping_sub(1) as usize],
         cpu.ram[idx as usize],
@@ -52,19 +58,19 @@ fn format_ram_checksum(cpu: &CPU) -> String {
     }
     let checksum = hasher.finish();
     format!(
-        "{ANSI_BLUE}#{checksum:x}{ANSI_RESET}",
+        " {ANSI_BLUE}#{checksum:x}{ANSI_RESET}",
     )
 }
 
 impl Plugin for RegisterInsight {
-    fn run(&mut self, cpu: &mut CPU) {
+    fn update(&mut self, cpu: &mut CPU) {
         // TODO: add rr?
         println!(
-            "{ANSI_ORANGE}{0}: {ANSI_YELLOW}{1:?} {2} {3} {4}",
+            "{ANSI_ORANGE}{0}: {ANSI_YELLOW}{1:?}{2}{3}{4}",
             cpu.cycle,
             &cpu.registers,
-            format_inst(cpu),
-            format_stack(cpu),
+            if self.show_next_instruction { &format_inst(cpu) } else { "" },
+            if self.show_stack_window { &format_stack(cpu) } else { "" },
             if self.show_ram_checksum { &format_ram_checksum(cpu) } else { "" },
         );
     }

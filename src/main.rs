@@ -20,7 +20,7 @@ fn main() {
     // Thread { cpu: CPU, plugins: Vec<CPUPlugin> }
     // run loop of .next(); every 1024 steps call all plugins (plugins like interrupt, reading dbg, limitops (2 mops))
 
-    let bytecode = assembler::assemble_project(&Path::new("../projects/recursive_scheduler")).unwrap();
+    let bytecode = assembler::assemble_project(&Path::new("./projects/recursive_scheduler")).unwrap();
     let len = bytecode
         .iter()
         .enumerate()

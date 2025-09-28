@@ -1,0 +1,34 @@
+struct Thread {
+    stack: &any,
+    children: &Vec,
+    alive: bool,
+}
+
+fn thread::spawn(app: &App) -> &Thread {
+    Vec::push((*CURRENT_THREAD).children, /* initialize thread */)
+}
+
+fn thread::kill(thread: &Thread) {
+    thread.alive = false;
+}
+
+const TOP_THREAD: &&Thread = &thread::spawn(...);
+
+fn schedule(thread: &Thread) {
+    if !thread.is_alive {
+        /* kill thread, unalive children, free memory, ..., remove dead children */
+    }
+
+    /* run thread */
+
+    /* recursively call children */
+}
+
+fn main() {
+    /* setup */
+
+    loop {
+        schedule(*TOP_THREAD);
+        /* render */
+    }
+}

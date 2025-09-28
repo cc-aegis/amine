@@ -10,6 +10,7 @@ CURR_THREAD:
 ; this WILL override ALL registers
 ; store all valuable registers yourself before calling
 thread::schedule(Thread*):
+    push rb
     write OS_THREAD_RS rs
     write CURR_THREAD [#-3]
     read rs [#-3]
@@ -35,8 +36,13 @@ thread::next():
     read r1 CURR_THREAD
     write r1 rs
     read rs OS_THREAD_RS
+    pop rb
     ; TODO: remove dead children
-    ; TODO: schedule children
+    ; schedule children
+    lookup r1 #1
+    pusht r1 thread::schedule(Thread*)
+    call Vec::for_each_volatile(Vec*,fn(any)*)
+    sub rs #2
     ret
 
 
@@ -72,4 +78,5 @@ thread::spawn(fn()*)->Thread*:
     write r1 #true
     sub r1 #2
     mov r0 r1
+    ; TODO: push new thread to CURR_THREAD.children if it is not null
     ret

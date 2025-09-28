@@ -8,10 +8,11 @@ dependencies:
     include vec.s
     include thread.s
     include apps/test.s
+    include apps/child_test.s
 
 main():
     ; setup
-    push test::main()
+    push child_test::main()
     call thread::spawn(fn()*)->Thread*
     dec rs
 .loop:

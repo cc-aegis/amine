@@ -211,7 +211,7 @@ impl CPU {
                 device.send();
             },
 
-            O::OPCODE_EXIT => todo!(),
+            O::OPCODE_EXIT => panic!("exit"),
 
             _ => panic!("opcode {opcode} for no-op instruction not expected"),
         }

@@ -1,4 +1,4 @@
-; Vec { arr, len, cap }
+; Vec { arr: any*, len: u16, cap: u16 }
 
     include mem.s
 
@@ -59,5 +59,38 @@ Vec::push(&Vec,any).skip:
     inc r1
     inc [#-4]
     write [#-4] r1
+    popt r1 r2
+    ret
+
+Vec::for_each(Vec*,fn(any)*):
+    pusht r1 r2
+    readitr r1 [#-4] ; arr
+    read r2 [#-4] ; len
+    jmp .cond
+.loop:
+    readitr r0 r1 ; element
+    push r0
+    call [#-3]
+    dec rs
+.cond:
+    jrnzdec r1 .loop
+    popt r1 r2
+    ret
+
+; may be used with functions that disrupt register state
+Vec::for_each_volatile(Vec*,fn(any)*):
+    pusht r1 r2
+    readitr r0 [#-4] ; arr
+    read r1 [#-4] ; len
+    jmp .cond
+.loop:
+    readitr r2 r0 ; element
+    pusht r0 r1
+    push r2
+    call [#-3]
+    dec rs
+    popt r0 r1
+.cond:
+    jrnzdec r1 .loop
     popt r1 r2
     ret

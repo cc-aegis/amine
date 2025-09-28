@@ -39,10 +39,10 @@ fn main() {
     cpu.install(Box::new(PrintDbg));
     // cpu.install(Box::new(Corruption::new(500_000)));
     // cpu.install(Box::new(RegisterInsight::new(true, true, true)));
-    cpu.install(Box::new(LimitClockSpeed::new(20_000_000))); // 20_000_000
+    cpu.install(Box::new(LimitClockSpeed::new(200))); // 20_000_000
 
     loop {
-        cpu.update(65536);
+        cpu.update(1);
     }
 
 

@@ -1,3 +1,4 @@
+; TODO: store parent instead of alive -> don't have to filter for dead children every time a thread is scheduled; only filter on parent when ::kill is called
 ; Thread { stack: &any, children: Vec*, alive: bool }
     define STACK_SIZE #128
     include vec.s

@@ -14,6 +14,19 @@ Vec::new()->Vec*:
     sub r0 #2
     ret
 
+    ; TODO: extension does not seem to work yet
+Vec::push(Vec*,any):
+    push DEFAULT_VEC_SIZE
+    call mem::alloc(u16)->any*
+    pusht r0 #3
+    call mem::alloc(u16)->any*
+    writeitr r0 [#1]
+    writeitr r0 #0
+    write r0 DEFAULT_VEC_SIZE
+    sub r0 #2
+    ret
+
+    ; TODO: extension does not seem to work yet
 Vec::push(Vec*,any):
     ; cap:r0 len:r1 arr:r2
     pusht r1 r2
@@ -56,6 +69,9 @@ Vec::push(Vec*,any):
 .skip:
     ; vec.arr[vec.len] = val;
     add r2 r1
+    dbg #999
+    dbg r2
+    dbg [#-3]
     write r2 [#-3]
     ; vec.len += 1;
     inc r1

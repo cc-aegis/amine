@@ -1,0 +1,80 @@
+// imports
+struct Vec { arr: &any, len: u16, cap: u16 };
+
+fn mem::alloc(len: u16) -> &any;
+fn mem::cleanse(owner: &Thread);
+fn Vec::new() -> &Vec;
+fn Vec::for_each(vec: &Vec, f: fn(any));
+fn Vec::for_each_volatile(vec: &Vec, f: fn(any));
+
+// start of module
+struct Thread {
+    stack: &any,
+    children: &Vec,
+    parent: &Thread,
+}
+
+const OS_THREAD_RS: &&any = &nullptr;
+const CURR_THREAD: &&Thread = &nullptr;
+
+const STACK_SIZE: u16 = 128;
+
+fn thread::spawn(main: &fn()) -> &Thread {
+    let stack = mem::alloc(STACK_SIZE);
+    ^stack = stack;
+    ^stack = main;
+    stack[10] = stack;
+    stack = stack - 2;
+    let thread = mem::alloc(sizeof Thread) alias &Thread;
+    thread.stack = stack;
+    thread.children = Vec::new();
+    thread.parent = *CURR_THREAD;
+    thread
+}
+
+asm fn thread::schedule(thread: &Thread) {
+    push rb
+    write OS_THREAD_RS rs
+    write CURR_THREAD [#-3]
+    read rs [#-3]
+
+    pop rf
+    popt rb rd
+    popt rr rg
+    popt r6 r7
+    popt r4 r5
+    popt r2 r3
+    popt r0 r1
+    ret
+}
+
+asm fn thread::next() {
+    pusht r0 r1
+    pusht r2 r3
+    pusht r4 r5
+    pusht r6 r7
+    pusht rr rg
+    pusht rb rd
+    push rf
+
+    read r1 CURR_THREAD
+    write r1 rs
+    read rs OS_THREAD_RS
+    pop rb
+
+    lookup r1 #1
+    pusht r1 thread::schedule(Thread*)
+    call Vec::for_each_volatile(Vec*,fn(any)*)
+    sub rs #2
+    ret
+}
+
+// TODO: check if thread is self or ancestor -> then idk
+fn thread::kill(thread: &Thread) {
+    Vec::for_each(thread.children, fn(child: &Thread) {
+        thread::kill(child);
+    });
+
+    Vec::remove(parent.children, thread);
+    mem::cleanse(thread); // free everything to belonging to thread (thread itself is also freed due to self-ownership)
+}

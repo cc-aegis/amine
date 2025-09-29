@@ -1,0 +1,48 @@
+fn mem::alloc(len: u16) -> &any;
+fn mem::free(ptr: &any);
+fn mem::copy(dst: &any, src: &any, len: u16);
+
+const DEFAULT_VEC_SIZE: u16 = 4;
+
+struct Vec {
+    arr: &any,
+    len: u16,
+    cap: u16,
+}
+
+fn Vec::new() {
+    let ptr = mem::alloc(DEFAULT_VEC_SIZE);
+    let vec = mem::alloc(3) alias &Vec;
+    ^vec = ptr;
+    ^vec = 0;
+    *vec = DEFAULT_VEC_SIZE;
+    vec - 2
+}
+
+fn Vec::push(vec: &Vec, element: any) {
+    if vec.len == vec.cap {
+        let cap = vec.len << 1;
+        let arr = mem::alloc(cap);
+        mem::copy(arr, vec.arr, vec.cap);
+        mem::free(vec.arr);
+        vec.arr = arr;
+        vec.cap = cap;
+    }
+    vec.arr[vec.len] = element;
+    vec.len = vec.len + 1;
+}
+
+// example: Vec::remove_if(threads, fn(thread: &Thread) -> bool { !thread.alive }, thread::kill);
+fn Vec::remove_if(vec: &Vec, predicate: &fn(any)->bool, free: &fn(any)) {
+    let write = vec.arr;
+    let read = vec.arr;
+    let idx = vec.len in for idx downto 0 {
+        let val = ^read;
+        if predicate(val) {
+            free(val);
+        } else {
+            ^write = val;
+        }
+    }
+    vec.len = write alias u16 - vec.arr alias u16;
+}

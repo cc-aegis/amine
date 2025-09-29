@@ -2,7 +2,7 @@ use std::hash::{DefaultHasher, Hasher};
 use std::path::Path;
 use emulator::cpu::CPU;
 use emulator::device::Display;
-use emulator::plugin::{ClearDbg, Corruption, LimitClockSpeed, PrintDbg, RegisterInsight};
+use emulator::plugin::{ClearDbg, Corruption, LimitClockSpeed, PrintDbg, RegisterInsight, StructInsight};
 // TODO: amine build file.s
 // TODO: amine build -p path
 // TODO: amine run file.x -D "devices.." -P "plugins.."
@@ -39,10 +39,11 @@ fn main() {
     cpu.install(Box::new(PrintDbg));
     // cpu.install(Box::new(Corruption::new(500_000)));
     // cpu.install(Box::new(RegisterInsight::new(true, true, true)));
-    cpu.install(Box::new(LimitClockSpeed::new(200))); // 20_000_000
+    cpu.install(Box::new(LimitClockSpeed::new(200_000))); // 20_000_000
+    // cpu.install(Box::new(StructInsight::new([true, true, true, false, false, false, false, false], 6))); // 20_000_000
 
     loop {
-        cpu.update(1);
+        cpu.update(1000);
     }
 
 

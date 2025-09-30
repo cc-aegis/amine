@@ -79,5 +79,12 @@ thread::spawn(fn()*)->Thread*:
     write r1 #true
     sub r1 #2
     mov r0 r1
-    ; TODO: push new thread to CURR_THREAD.children if it is not null
+    ; push new thread to CURR_THREAD.children if it is not null
+    read r1 CURR_THREAD
+    jrz r1 .skip
+    lookup r1 #1
+    pusht r1 r0
+    call Vec::push(Vec*,any)
+    sub rs #2
+.skip:
     ret

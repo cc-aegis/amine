@@ -39,13 +39,18 @@ fn main() {
     cpu.install(Box::new(PrintDbg));
     // cpu.install(Box::new(Corruption::new(500_000)));
     // cpu.install(Box::new(RegisterInsight::new(true, true, true)));
-    cpu.install(Box::new(LimitClockSpeed::new(200_000))); // 20_000_000
+    cpu.install(Box::new(LimitClockSpeed::new(200))); // 20_000_000
     // cpu.install(Box::new(StructInsight::new([true, true, true, false, false, false, false, false], 6))); // 20_000_000
 
     loop {
-        cpu.update(1000);
+        cpu.update(10);
     }
 
 
     todo!("collect args")
 }
+
+// TODO: plugin that display 256x256 of values (black to white) in separate window
+// TODO: option: use colors to signal owner (mem)
+// TODO: option: highlight which parts belong to the some block somehow
+// TODO: option: show registers above

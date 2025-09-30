@@ -2,7 +2,7 @@ use std::hash::{DefaultHasher, Hasher};
 use std::path::Path;
 use emulator::cpu::CPU;
 use emulator::device::Display;
-use emulator::plugin::{ClearDbg, Corruption, LimitClockSpeed, PrintDbg, RegisterInsight, StructInsight};
+use emulator::plugin::{ClearDbg, Corruption, LimitClockSpeed, PrintDbg, RamView, RegisterInsight, StructInsight};
 // TODO: amine build file.s
 // TODO: amine build -p path
 // TODO: amine run file.x -D "devices.." -P "plugins.."
@@ -37,13 +37,14 @@ fn main() {
     // cpu.attach(Box::new(Display::new()));
 
     cpu.install(Box::new(PrintDbg));
-    // cpu.install(Box::new(Corruption::new(500_000)));
+    // cpu.install(Box::new(Corruption::new(1)));
     // cpu.install(Box::new(RegisterInsight::new(true, true, true)));
-    cpu.install(Box::new(LimitClockSpeed::new(200))); // 20_000_000
-    // cpu.install(Box::new(StructInsight::new([true, true, true, false, false, false, false, false], 6))); // 20_000_000
+    cpu.install(Box::new(LimitClockSpeed::new(200000))); // 20_000_000
+    // cpu.install(Box::new(StructInsight::new([true, true, true, false, false, false, false, false], 6)));
+    cpu.install(Box::new(RamView::new().unwrap()));
 
     loop {
-        cpu.update(10);
+        cpu.update(512);
     }
 
 
@@ -54,3 +55,4 @@ fn main() {
 // TODO: option: use colors to signal owner (mem)
 // TODO: option: highlight which parts belong to the some block somehow
 // TODO: option: show registers above
+// TODO: option: heatmap

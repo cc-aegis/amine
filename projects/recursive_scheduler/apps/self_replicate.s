@@ -2,6 +2,7 @@
 
 ; self-replicate once; print thread-id every tick
 self_replicate::main():
+    call thread::next()
     push self_replicate::main()
     call thread::spawn(fn()*)->Thread*
     dec rs

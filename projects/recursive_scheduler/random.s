@@ -13,6 +13,10 @@ random::next()->any:
     write random::SEED r0
     ret
 
+random::seed(any):
+    write random::SEED [#-3]
+    ret
+
 random::salt(any):
     read r0 random::SEED
     xor r0 [#-3]

@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 assembler = { path = "assembler" }
 emulator = { path = "emulator" }
+toml = "0.9.7"

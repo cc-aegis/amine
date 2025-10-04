@@ -1,6 +1,8 @@
 mod display;
+mod dummy;
 
 pub use display::Display;
+pub use dummy::Dummy;
 
 #[allow(unused_variables)]
 pub trait Device {

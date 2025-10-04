@@ -1,8 +1,11 @@
+mod config;
+
 use std::hash::{DefaultHasher, Hasher};
 use std::path::Path;
 use emulator::cpu::CPU;
 use emulator::device::Display;
 use emulator::plugin::{ClearDbg, Corruption, LimitClockSpeed, PrintDbg, RamView, RegisterInsight, StructInsight};
+use crate::config::AmineConfig;
 // TODO: amine build file.s
 // TODO: amine build -p path
 // TODO: amine run file.x -D "devices.." -P "plugins.."
@@ -16,39 +19,13 @@ fn checksum(data: &[u16]) -> u64 {
 }
 
 fn main() {
-    // struct CPUPlugin { freq: usize, act: fn(&mut CPU) }
-    // Thread { cpu: CPU, plugins: Vec<CPUPlugin> }
-    // run loop of .next(); every 1024 steps call all plugins (plugins like interrupt, reading dbg, limitops (2 mops))
-
-    let bytecode = assembler::assemble_project(&Path::new("./projects/recursive_scheduler")).unwrap();
-    let len = bytecode
-        .iter()
-        .enumerate()
-        .fold(0, |result, (idx, word)| match word {
-            0 => result,
-            _ => idx + 1,
-        });
-    println!("{0:?}", &bytecode[..len]);
-    println!("word count: {len} ({0:.2}% of RAM)", len as f32 / 655.36);
-    println!("checksum: {}", checksum(bytecode.as_slice()));
-    let mut cpu = CPU::from(bytecode);
-
-    // cpu.attach(Box::new(Display::new()));
-    // cpu.attach(Box::new(Display::new()));
-
-    cpu.install(Box::new(PrintDbg));
-    // cpu.install(Box::new(Corruption::new(1)));
-    // cpu.install(Box::new(RegisterInsight::new(true, true, true)));
-    cpu.install(Box::new(LimitClockSpeed::new(200000))); // 20_000_000
-    // cpu.install(Box::new(StructInsight::new([true, true, true, false, false, false, false, false], 6)));
-    cpu.install(Box::new(RamView::new().unwrap()));
+    let (mut cpu, upc) = AmineConfig::import("projects/recursive_scheduler")
+        .unwrap()
+        .create();
 
     loop {
-        cpu.update(512);
+        cpu.update(upc);
     }
-
-
-    todo!("collect args")
 }
 
 // TODO: plugin that display 256x256 of values (black to white) in separate window

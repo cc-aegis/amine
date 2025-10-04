@@ -66,13 +66,12 @@ impl Plugin for RegisterInsight {
     fn update(&mut self, cpu: &mut CPU) {
         // TODO: add rr?
         println!(
-            "{ANSI_ORANGE}{0}: {ANSI_YELLOW}{1:?}{2}{3}{4}{5:?}",
+            "{ANSI_ORANGE}{0}: {ANSI_YELLOW}{1:?}{2}{3}{4}",
             cpu.cycle,
             &cpu.registers,
             if self.show_next_instruction { &format_inst(cpu) } else { "" },
             if self.show_stack_window { &format_stack(cpu) } else { "" },
             if self.show_ram_checksum { &format_ram_checksum(cpu) } else { "" },
-            &cpu.ram[..8]
         );
     }
 }

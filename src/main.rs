@@ -18,8 +18,14 @@ fn checksum(data: &[u16]) -> u64 {
     hasher.finish()
 }
 
+/*
+amine run -F
+amine run -D
+amine run -P (default)
+ */
+
 fn main() {
-    let (mut cpu, upc) = AmineConfig::import("projects/recursive_scheduler")
+    let (mut cpu, upc) = AmineConfig::import(".")
         .unwrap()
         .create();
 
